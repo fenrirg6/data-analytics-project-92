@@ -1,0 +1,5 @@
+--Используем агрегирующую функцию COUNT() для расчета числа покупателей
+--Дополнительно прописал DISTINCT на случай, если в справочнике будут дублирующие значения, но результат для
+--COUNT() и COUNT(DISTINCT) в данном случае не отличается
+
+select COUNT(distinct customer_id) as "customers_count" from customers
