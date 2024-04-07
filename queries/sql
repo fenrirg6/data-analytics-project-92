@@ -26,4 +26,3 @@ left join products p
 on s.product_id = p.product_id
 group by seller
 order by income desc
-limit 10
