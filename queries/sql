@@ -11,8 +11,8 @@ from customers
 --  2
 /*
 Джоиним два необходимых справочника customers и products по ключам customer_id и product_id соответственно на "таблицу фактов" sales, после чего
-создаем три поля: конкатинированное поле с именем и фамилией, число операций и сумму выручки как произведение цены конкретного продукта на 
-его количество. Группируем информацию по продавцам через GROUP BY, отображаем по убыванию выручки и ограничиваем выборку 10 элементами
+создаем три поля: конкатинированное поле с именем и фамилией, число операций и сумму выручки (округляем значения до целых через FLOOR()) как произведение цены конкретного продукта на 
+его количество. Группируем информацию по продавцам через GROUP BY, отображаем по убыванию выручки.
 */
 
 select
@@ -26,3 +26,26 @@ left join products p
 on s.product_id = p.product_id
 group by seller
 order by income desc
+
+-- 3
+/*
+Аналогично предыдущему запросу делаем джоины, но на этот раз делаем агрегацию по средней выручке продавца. Пишем "условие" того, что средняя выручка
+конкретного продавца меньше средней выручки по всем продавцам через подзапрос в HAVING, так как "работаем" с агрегированной функцией AVG(). 
+Округляем значения до целых через FLOOR().
+*/
+select
+	CONCAT(c.first_name,' ', c.last_name) as seller,
+	FLOOR(avg(p.price * s.quantity)) as average_income
+from sales s
+left join customers c 
+on s.customer_id = c.customer_id
+left join products p
+on s.product_id = p.product_id
+group by seller
+having FLOOR(avg(p.price * s.quantity)) < (
+	select FLOOR(avg(p.price * s.quantity)) 
+	from sales s 
+	left join products p 
+	on s.product_id = p.product_id
+	)
+order by average_income asc
