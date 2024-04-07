@@ -35,6 +35,7 @@ order by income desc
 UPD: изначально в получившихся результатах меня смущали нули в средней выручке, но после того, как я залез в таблицу справочник products и увидел,
 что у некоторых позиций есть цена 0 - успокоился :)
 */
+
 select
 	CONCAT(c.first_name,' ', c.last_name) as seller,
 	FLOOR(avg(p.price * s.quantity)) as average_income
@@ -51,3 +52,20 @@ having FLOOR(avg(p.price * s.quantity)) < (
 	on s.product_id = p.product_id
 	)
 order by average_income asc
+
+--4
+/*
+Аналогично собираем таблицу из справочников и таблицы-факта, конвертируем дату в имена дней недели, группируем по имени продавца и дню недели, сортируем по тем же полям в прямом порядке.
+*/
+
+select
+	CONCAT(c.first_name,' ', c.last_name) as seller,
+	to_char(s.sale_date, 'day') as day_of_week,
+	FLOOR(sum(p.price * s.quantity)) as income
+from sales s
+left join customers c 
+on s.customer_id = c.customer_id
+left join products p
+on s.product_id = p.product_id
+group by seller, day_of_week
+order by seller, to_char(s.sale_date, 'day')
