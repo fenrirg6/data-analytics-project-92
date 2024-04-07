@@ -1,5 +1,28 @@
---Используем агрегирующую функцию COUNT() для расчета числа покупателей
---Дополнительно прописал DISTINCT на случай, если в справочнике будут дублирующие значения, но результат для
---COUNT() и COUNT(DISTINCT) в данном случае не отличается
+--  1
+/*
+Используем агрегирующую функцию COUNT() для расчета числа покупателей
+Дополнительно прописал DISTINCT на случай, если в справочнике будут дублирующие значения, но результат для
+COUNT() и COUNT(DISTINCT) в данном случае не отличается
+*/
 
-select COUNT(distinct customer_id) as "customers_count" from customers
+select COUNT(distinct customer_id) as "customers_count"
+from customers
+
+--  2
+/*
+Джоиним два необходимых справочника customers и products по ключам customer_id и product_id соответственно на "таблицу фактов" sales, после чего
+создаем три поля: конкатинированное поле с именем и фамилией, число операций и сумму выручки как произведение цены конкретного продукта на 
+его количество. Группируем информацию по продавцам через GROUP BY, отображаем по убыванию выручки и ограничиваем выборку 10 элементами
+*/
+select
+	CONCAT(c.first_name,' ', c.last_name) as seller,
+	COUNT(s.*) as operations,
+	SUM(p.price * s.quantity) as income from 
+sales s
+left join customers c 
+on s.customer_id = c.customer_id
+left join products p
+on s.product_id = p.product_id
+group by seller
+order by income desc
+limit 10
