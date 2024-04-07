@@ -10,18 +10,18 @@ from customers
 
 --  2
 /*
-Джоиним два необходимых справочника customers и products по ключам customer_id и product_id соответственно на "таблицу фактов" sales, после чего
+Джоиним два необходимых справочника employees и products по ключам employee_id и product_id соответственно на "таблицу фактов" sales, после чего
 создаем три поля: конкатинированное поле с именем и фамилией, число операций и сумму выручки (округляем значения до целых через FLOOR()) как произведение цены конкретного продукта на 
 его количество. Группируем информацию по продавцам через GROUP BY, отображаем по убыванию выручки.
 */
 
 select
-	CONCAT(c.first_name,' ', c.last_name) as seller,
+	CONCAT(e.first_name,' ', e.last_name) as seller,
 	COUNT(s.*) as operations,
 	FLOOR(SUM(p.price * s.quantity)) as income
 from sales s
-left join customers c 
-on s.customer_id = c.customer_id
+left join employees e
+on e.employee_id = s.sales_person_id 
 left join products p
 on s.product_id = p.product_id
 group by seller
@@ -32,16 +32,14 @@ order by income desc
 Аналогично предыдущему запросу делаем джоины, но на этот раз делаем агрегацию по средней выручке продавца. Пишем "условие" того, что средняя выручка
 конкретного продавца меньше средней выручки по всем продавцам через подзапрос в HAVING, так как "работаем" с агрегированной функцией AVG(). 
 Округляем значения до целых через FLOOR(). 
-UPD: изначально в получившихся результатах меня смущали нули в средней выручке, но после того, как я залез в таблицу справочник products и увидел,
-что у некоторых позиций есть цена 0 - успокоился :)
 */
 
 select
-	CONCAT(c.first_name,' ', c.last_name) as seller,
+	CONCAT(e.first_name,' ', e.last_name) as seller,
 	FLOOR(avg(p.price * s.quantity)) as average_income
 from sales s
-left join customers c 
-on s.customer_id = c.customer_id
+left join employees e
+on e.employee_id = s.sales_person_id 
 left join products p
 on s.product_id = p.product_id
 group by seller
@@ -59,12 +57,12 @@ order by average_income asc
 */
 
 select
-	CONCAT(c.first_name,' ', c.last_name) as seller,
+	CONCAT(e.first_name,' ', e.last_name) as seller,
 	to_char(s.sale_date, 'day') as day_of_week,
 	FLOOR(sum(p.price * s.quantity)) as income
 from sales s
-left join customers c 
-on s.customer_id = c.customer_id
+left join employees e
+on e.employee_id = s.sales_person_id 
 left join products p
 on s.product_id = p.product_id
 group by seller, day_of_week
