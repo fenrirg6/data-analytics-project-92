@@ -5,8 +5,8 @@
 COUNT() и COUNT(DISTINCT) в данном случае не отличается
 */
 
-select COUNT(distinct customer_id) as "customers_count"
-from customers
+SELECT COUNT(distinct customer_id) AS "customers_count"
+FROM customers
 
 --  2
 /*
@@ -15,17 +15,17 @@ from customers
 его количество. Группируем информацию по продавцам через GROUP BY, отображаем по убыванию выручки.
 */
 
-select
-	CONCAT(e.first_name,' ', e.last_name) as seller,
-	COUNT(s.*) as operations,
-	FLOOR(SUM(p.price * s.quantity)) as income
-from sales s
-left join employees e
-on e.employee_id = s.sales_person_id 
-left join products p
-on s.product_id = p.product_id
-group by seller
-order by income desc
+SELECT
+	CONCAT(e.first_name,' ', e.last_name) AS seller,
+	COUNT(s.*) AS operations,
+	FLOOR(SUM(p.price * s.quantity)) AS income
+FROM sales s
+LEFT JOIN employees e
+ON e.employee_id = s.sales_person_id 
+LEFT JOIN products p
+ON s.product_id = p.product_id
+GROUP BY seller
+ORDER BY income DESC
 
 -- 3
 /*
@@ -34,36 +34,36 @@ order by income desc
 Округляем значения до целых через FLOOR(). 
 */
 
-select
-	CONCAT(e.first_name,' ', e.last_name) as seller,
-	FLOOR(avg(p.price * s.quantity)) as average_income
-from sales s
-left join employees e
-on e.employee_id = s.sales_person_id 
-left join products p
-on s.product_id = p.product_id
-group by seller
-having FLOOR(avg(p.price * s.quantity)) < (
-	select FLOOR(avg(p.price * s.quantity)) 
-	from sales s 
-	left join products p 
-	on s.product_id = p.product_id
+SELECT
+	CONCAT(e.first_name,' ', e.last_name) AS seller,
+	FLOOR(avg(p.price * s.quantity)) AS average_income
+FROM sales s
+LEFT JOIN employees e
+ON e.employee_id = s.sales_person_id 
+LEFT JOIN products p
+ON s.product_id = p.product_id
+GROUP BY seller
+HAVING FLOOR(avg(p.price * s.quantity)) < (
+	SELECT FLOOR(avg(p.price * s.quantity)) 
+	FROM sales s 
+	LEFT JOIN products p 
+	ON s.product_id = p.product_id
 	)
-order by average_income asc
+ORDER BY average_income ASC
 
 --4
 /*
 Аналогично собираем таблицу из справочников и таблицы-факта, конвертируем дату в имена дней недели, группируем по имени продавца и дню недели, сортируем по тем же полям в прямом порядке.
 */
 
-select
-	CONCAT(e.first_name,' ', e.last_name) as seller,
-	to_char(s.sale_date, 'day') as day_of_week,
-	FLOOR(sum(p.price * s.quantity)) as income
-from sales s
-left join employees e
-on e.employee_id = s.sales_person_id 
-left join products p
-on s.product_id = p.product_id
-group by seller, day_of_week
-order by seller, to_char(s.sale_date, 'day')
+SELECT
+	CONCAT(e.first_name,' ', e.last_name) AS seller,
+	to_char(s.sale_date, 'day') AS day_of_week,
+	FLOOR(sum(p.price * s.quantity)) AS income
+FROM sales s
+LEFT JOIN employees e
+ON e.employee_id = s.sales_person_id 
+LEFT JOIN products p
+ON s.product_id = p.product_id
+GROUP BY seller, day_of_week
+ORDER BY seller, to_char(s.sale_date, 'day')
