@@ -67,3 +67,35 @@ LEFT JOIN products p
 ON s.product_id = p.product_id
 GROUP BY seller, day_of_week
 ORDER BY seller, to_char(s.sale_date, 'day')
+
+--5
+/*
+Через CASE прописываем условие для дифференциации покупателей по возрастным группам (с учетом того, что BETWEEN включает в себя оба "края"), считаем количество строк при группироке по 
+возрастной группе.
+*/
+
+select case
+		when age between 16 and 25 then '16-25'
+		when age between 26 and 40 then '26-40'
+		else '40+'
+	end as age_category,
+	count(*)
+from customers
+group by age_category
+
+--6
+/*
+
+*/
+
+select
+	to_char(s.sale_date, 'YYYY-MM') as selling_month,
+	COUNT(distinct s.customer_id) as total_customers,
+	FLOOR(SUM(p.price * s.quantity)) as income
+from sales s 
+left join customers c 
+on s.customer_id = s.customer_id
+left join products p 
+on s.product_id = p.product_id
+group by selling_month
+order by selling_month asc 
