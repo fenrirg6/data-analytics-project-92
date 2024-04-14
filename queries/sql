@@ -20,9 +20,9 @@ SELECT
 	COUNT(s.*) AS operations,
 	FLOOR(SUM(p.price * s.quantity)) AS income
 FROM sales s
-LEFT JOIN employees e
+	LEFT JOIN employees e
 ON e.employee_id = s.sales_person_id 
-LEFT JOIN products p
+	LEFT JOIN products p
 ON s.product_id = p.product_id
 GROUP BY seller
 ORDER BY income DESC
@@ -38,9 +38,9 @@ SELECT
 	CONCAT(e.first_name,' ', e.last_name) AS seller,
 	FLOOR(avg(p.price * s.quantity)) AS average_income
 FROM sales s
-LEFT JOIN employees e
+	LEFT JOIN employees e
 ON e.employee_id = s.sales_person_id 
-LEFT JOIN products p
+	LEFT JOIN products p
 ON s.product_id = p.product_id
 GROUP BY seller
 HAVING FLOOR(avg(p.price * s.quantity)) < (
@@ -61,9 +61,9 @@ SELECT
 	to_char(s.sale_date, 'day') AS day_of_week,
 	FLOOR(sum(p.price * s.quantity)) AS income
 FROM sales s
-LEFT JOIN employees e
+	LEFT JOIN employees e
 ON e.employee_id = s.sales_person_id 
-LEFT JOIN products p
+	LEFT JOIN products p
 ON s.product_id = p.product_id
 GROUP BY seller, day_of_week
 ORDER BY seller, to_char(s.sale_date, 'day')
@@ -74,28 +74,56 @@ ORDER BY seller, to_char(s.sale_date, 'day')
 возрастной группе.
 */
 
-select case
-		when age between 16 and 25 then '16-25'
-		when age between 26 and 40 then '26-40'
-		else '40+'
-	end as age_category,
-	count(*)
-from customers
-group by age_category
+SELECT CASE
+	WHEN age BETWEEN 16 AND 25 THEN '16-25'
+	WHEN age BETWEEN 26 AND 40 THEN '26-40'
+	ELSE '40+'
+END AS age_category,
+	COUNT(*)
+FROM customers
+GROUP BY age_category
 
 --6
 /*
-
+Через джоины собираем таблицу из таблицы фактов и двух справочников, а после SELECT'ом выбираем три поля: 1) дату в формате YYYY-MM, 2) число уникальных покупателей через COUNT(DISTINCT),
+3) выручка как цена за единицу товара на количество проданных штук с округлением до целых.
 */
 
-select
-	to_char(s.sale_date, 'YYYY-MM') as selling_month,
-	COUNT(distinct s.customer_id) as total_customers,
-	FLOOR(SUM(p.price * s.quantity)) as income
-from sales s 
-left join customers c 
-on s.customer_id = c.customer_id
-left join products p 
-on s.product_id = p.product_id
-group by selling_month
-order by selling_month asc 
+SELECT
+	TO_CHAR(s.sale_date, 'YYYY-MM') AS selling_month,
+	COUNT(DISTINCT s.customer_id) AS total_customers,
+	FLOOR(SUM(p.price * s.quantity)) AS income
+FROM sales s 
+LEFT JOIN customers c 
+	ON s.customer_id = c.customer_id
+LEFT JOIN products p 
+	ON s.product_id = p.product_id
+GROUP BY selling_month
+ORDER BY selling_month ASC
+
+--7
+/*
+Оконными функциями ищем "первые вхождения" промоционных товаров и соотв. дату. Обертка в CTE для удобства написания запроса :)
+*/
+
+WITH initial_table AS (
+	SELECT
+		CONCAT(c.first_name, ' ', c.last_name) AS customer,
+		FIRST_VALUE(s.sale_date) OVER (PARTITION BY c.customer_id ORDER BY s.sale_date) AS sale_date,
+		CONCAT(e.first_name, ' ', e.last_name) AS seller,
+		FIRST_VALUE(p.price) OVER (PARTITION BY c.customer_id ORDER BY s.sale_date, c.customer_id) AS first_val_disc
+	FROM customers c 
+		LEFT JOIN sales s 
+	ON c.customer_id = s.customer_id
+		LEFT JOIN employees e 
+	ON s.sales_person_id = e.employee_id
+		LEFT JOIN products p 
+	ON s.product_id = p.product_id
+)
+
+SELECT DISTINCT 
+	initial_table.customer,
+	initial_table.sale_date,
+	initial_table.seller
+FROM initial_table
+WHERE first_val_disc = 0
