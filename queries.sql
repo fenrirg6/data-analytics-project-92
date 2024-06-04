@@ -67,7 +67,7 @@ ON e.employee_id = s.sales_person_id
 	LEFT JOIN products p
 ON s.product_id = p.product_id
 GROUP BY seller, day_of_week, to_char(s.sale_date, 'ID')
-ORDER BY seller, to_char(s.sale_date, 'ID')
+ORDER BY to_char(s.sale_date, 'ID'), seller
 
 --5
 /*
