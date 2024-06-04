@@ -121,11 +121,13 @@ WITH initial_table AS (
 	ON s.sales_person_id = e.employee_id
 		LEFT JOIN products p 
 	ON s.product_id = p.product_id
-)
+), first_val_disc_table AS (
+	SELECT DISTINCT ON (customer)
+		customer,
+		sale_date,
+		seller
+	FROM initial_table
+	WHERE first_val_disc = 0		
+	)
 
-SELECT DISTINCT 
-	initial_table.customer,
-	initial_table.sale_date,
-	initial_table.seller
-FROM initial_table
-WHERE first_val_disc = 0
+SELECT * FROM first_val_disc_table
