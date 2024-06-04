@@ -19,7 +19,6 @@ employee_id и product_id соответственно на "таблицу фа
 цены конкретного продукта на его количество. Группируем информацию по
 продавцам через GROUP BY, отображаем по убыванию выручки.
 */
-
 SELECT CONCAT(e.first_name,' ', e.last_name) AS seller,
 	COUNT(s.*) AS operations,
 	FLOOR(SUM(p.price * s.quantity)) AS income
