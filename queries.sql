@@ -83,6 +83,7 @@ END AS age_category,
 	COUNT(*) AS age_count
 FROM customers
 GROUP BY age_category
+ORDER BY age_category
 
 --6
 /*
