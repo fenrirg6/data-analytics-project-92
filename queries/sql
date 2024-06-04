@@ -54,6 +54,7 @@ ORDER BY average_income ASC
 --4
 /*
 Аналогично собираем таблицу из справочников и таблицы-факта, конвертируем дату в имена дней недели, группируем по имени продавца и дню недели, сортируем по тем же полям в прямом порядке.
+UPD: сортировка была некорректна, т.к. приводила к сортировке в алфавитном порядке. Изменено на to_char(s.sale_date, 'ID') - конвертация даты в дни недели в ISO-формате.
 */
 
 SELECT
@@ -65,8 +66,8 @@ FROM sales s
 ON e.employee_id = s.sales_person_id 
 	LEFT JOIN products p
 ON s.product_id = p.product_id
-GROUP BY seller, day_of_week
-ORDER BY seller, to_char(s.sale_date, 'day')
+GROUP BY seller, day_of_week, to_char(s.sale_date, 'ID')
+ORDER BY seller, to_char(s.sale_date, 'ID')
 
 --5
 /*
