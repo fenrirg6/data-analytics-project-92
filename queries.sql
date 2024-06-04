@@ -80,7 +80,7 @@ SELECT CASE
 	WHEN age BETWEEN 26 AND 40 THEN '26-40'
 	ELSE '40+'
 END AS age_category,
-	COUNT(*)
+	COUNT(*) AS 'age-count'
 FROM customers
 GROUP BY age_category
 
