@@ -20,10 +20,9 @@ employee_id и product_id соответственно на "таблицу фа
 продавцам через GROUP BY, отображаем по убыванию выручки.
 */
 
-SELECT
-CONCAT(e.first_name,' ', e.last_name) AS seller,
-COUNT(s.*) AS operations,
-FLOOR(SUM(p.price * s.quantity)) AS income
+SELECT CONCAT(e.first_name,' ', e.last_name) AS seller,
+	COUNT(s.*) AS operations,
+	FLOOR(SUM(p.price * s.quantity)) AS income
 FROM sales s
 	LEFT JOIN employees e
 ON e.employee_id = s.sales_person_id 
