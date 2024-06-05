@@ -70,16 +70,16 @@ UPD: сортировка была некорректна, т.к. приводи
 */
 
 SELECT
-	CONCAT(e.first_name,' ', e.last_name) AS seller,
-	to_char(s.sale_date, 'day') AS day_of_week,
-	FLOOR(sum(p.price * s.quantity)) AS income
+    CONCAT(e.first_name, ' ', e.last_name) AS seller,
+    TO_CHAR(s.sale_date, 'day') AS day_of_week,
+    FLOOR(SUM(p.price * s.quantity)) AS income
 FROM sales s
-	LEFT JOIN employees e
-ON e.employee_id = s.sales_person_id 
-	LEFT JOIN products p
-ON s.product_id = p.product_id
-GROUP BY seller, day_of_week, to_char(s.sale_date, 'ID')
-ORDER BY to_char(s.sale_date, 'ID'), seller;
+LEFT JOIN employees e
+    ON e.employee_id = s.sales_person_id 
+LEFT JOIN products p
+    ON s.product_id = p.product_id
+GROUP BY seller, day_of_week, TO_CHAR(s.sale_date, 'ID')
+ORDER BY TO_CHAR(s.sale_date, 'ID'), seller;
 
 --5
 /*
@@ -155,6 +155,6 @@ first_val_disc_table AS (
         seller
     FROM initial_table
     WHERE first_val_disc = 0
-);
+)
 
 SELECT * FROM first_val_disc_table;
