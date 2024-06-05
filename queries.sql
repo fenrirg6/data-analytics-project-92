@@ -76,7 +76,7 @@ SELECT
     FLOOR(SUM(p.price * s.quantity)) AS income
 FROM sales AS s
 LEFT JOIN employees AS e
-    ON  s.sales_person_id = e.employee_id
+    ON s.sales_person_id = e.employee_id
 LEFT JOIN products AS p
     ON s.product_id = p.product_id
 GROUP BY seller, day_of_week, TO_CHAR(s.sale_date, 'ID')
