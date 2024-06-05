@@ -20,7 +20,9 @@ employee_id и product_id соответственно на "таблицу фа
 продавцам через GROUP BY, отображаем по убыванию выручки.
 */
 
-SELECT CONCAT(e.first_name, ' ', e.last_name) AS seller, COUNT(s.*) AS operations, FLOOR(SUM(p.price * s.quantity)) AS income
+SELECT CONCAT(e.first_name, ' ', e.last_name) AS seller,
+    COUNT(s.*) AS operations,
+    FLOOR(SUM(p.price * s.quantity)) AS income
 FROM sales AS s
 LEFT JOIN employees AS e
     ON s.sales_person_id = e.employee_id
@@ -37,6 +39,24 @@ ORDER BY income DESC
 в HAVING, так как "работаем" с агрегированной функцией AVG().
 Округляем значения до целых через FLOOR().
 */
+
+SELECT
+    CONCAT(e.first_name, ' ', e.last_name) AS seller,
+    FLOOR(AVG(p.price * s.quantity)) AS average_income
+FROM sales AS s
+LEFT JOIN employees AS e
+    ON s.sales_person_id = e.employee_id
+LEFT JOIN products AS p
+    ON s.product_id = p.product_id
+GROUP BY seller
+HAVING
+    FLOOR(AVG(p.price * s.quantity)) < (
+        SELECT FLOOR(AVG(p.price * s.quantity))
+        FROM sales AS s
+        LEFT JOIN products AS p
+            ON s.product_id = p.product_id
+    )
+ORDER BY average_income ASC
 
 --4
 /*
