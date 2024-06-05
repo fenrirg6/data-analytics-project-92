@@ -25,27 +25,9 @@ employee_id и product_id соответственно на "таблицу фа
 Аналогично предыдущему запросу делаем джоины, но на этот раз делаем агрегацию
 по средней выручке продавца. Пишем "условие" того, что средняя выручка
 конкретного продавца меньше средней выручки по всем продавцам через подзапрос
-в HAVING, так как "работаем" с агрегированной функцией AVG(). 
-Округляем значения до целых через FLOOR(). 
+в HAVING, так как "работаем" с агрегированной функцией AVG().
+Округляем значения до целых через FLOOR().
 */
-
-SELECT
-    CONCAT(e.first_name, ' ', e.last_name) AS seller,
-    FLOOR(AVG(p.price * s.quantity)) AS average_income
-FROM sales AS s
-LEFT JOIN employees AS e
-    ON s.sales_person_id = e.employee_id
-LEFT JOIN products AS p
-    ON s.product_id = p.product_id
-GROUP BY seller
-HAVING
-    FLOOR(AVG(p.price * s.quantity)) < (
-        SELECT FLOOR(AVG(p.price * s.quantity))
-        FROM sales AS s
-        LEFT JOIN products AS p
-            ON s.product_id = p.product_id
-    )
-ORDER BY average_income ASC
 
 --4
 /*
