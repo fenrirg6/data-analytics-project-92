@@ -124,12 +124,36 @@ ORDER BY selling_month ASC;
 
 --7
 /*
-Оконными функциями ищем "первые вхождения" промоционных товаров и соотв. дату.
+OLD:Оконными функциями ищем "первые вхождения" промоционных товаров и соотв. дату.
 Обертка в CTE для удобства написания запроса :)
+
+UPD: исправлено без помощи оконных функций, а только через корректную фильтрацию,
+INNER JOIN'ы (чтобы выкидывать unmatched значения из более правых таблиц),
+а также через DISTINCT ON с корректной сортировкой - последняя должна
+соответствовать "left-most column in distinct on clause" - pSQL doc.
 */
 
-WITH initial_table AS (
-    SELECT
+SELECT DISTINCT ON (customer)
+    s.sale_date,
+    CONCAT(c.first_name, ' ', c.last_name) AS customer,
+    CONCAT(e.first_name, ' ', e.last_name) AS seller
+FROM customers AS c
+INNER JOIN sales AS s
+    ON c.customer_id = s.customer_id
+INNER JOIN employees AS e
+    ON s.sales_person_id = e.employee_id
+INNER JOIN products AS p
+    ON s.product_id = p.product_id
+WHERE p.price = 0
+ORDER BY customer ASC, s.sale_date ASC
+
+/*
+SELECT
+    customer,
+    sale_date,
+    seller
+FROM (
+    SELECT DISTINCT ON (CONCAT(c.first_name, ' ', c.last_name))
         CONCAT(c.first_name, ' ', c.last_name) AS customer,
         FIRST_VALUE(s.sale_date)
             OVER (PARTITION BY c.customer_id ORDER BY s.sale_date)
@@ -147,15 +171,7 @@ WITH initial_table AS (
         ON s.sales_person_id = e.employee_id
     LEFT JOIN products AS p
         ON s.product_id = p.product_id
-),
-
-first_val_disc_table AS (
-    SELECT DISTINCT ON (customer)
-        customer,
-        sale_date,
-        seller
-    FROM initial_table
-    WHERE first_val_disc = 0
-)
-
-SELECT * FROM first_val_disc_table;
+    WHERE sale_date IS NOT NULL
+) AS initial_table
+WHERE first_val_disc = 0;
+*/
