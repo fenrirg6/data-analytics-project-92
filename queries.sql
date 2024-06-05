@@ -8,7 +8,7 @@
 */
 
 SELECT COUNT(DISTINCT customer_id) AS "customers_count"
-FROM customers
+FROM customers;
 
 --  2
 /*
@@ -29,7 +29,7 @@ LEFT JOIN employees AS e
 LEFT JOIN products AS p
     ON s.product_id = p.product_id
 GROUP BY seller
-ORDER BY income DESC
+ORDER BY income DESC;
 
 
 -- 3
@@ -57,7 +57,7 @@ HAVING
         LEFT JOIN products AS p
             ON s.product_id = p.product_id
     )
-ORDER BY average_income ASC
+ORDER BY average_income ASC;
 
 --4
 /*
@@ -79,7 +79,7 @@ ON e.employee_id = s.sales_person_id
 	LEFT JOIN products p
 ON s.product_id = p.product_id
 GROUP BY seller, day_of_week, to_char(s.sale_date, 'ID')
-ORDER BY to_char(s.sale_date, 'ID'), seller
+ORDER BY to_char(s.sale_date, 'ID'), seller;
 
 --5
 /*
@@ -98,7 +98,7 @@ SELECT
     COUNT(*) AS age_count
 FROM customers
 GROUP BY age_category
-ORDER BY age_category
+ORDER BY age_category;
 
 --6
 /*
@@ -119,7 +119,7 @@ LEFT JOIN customers AS c
 LEFT JOIN products AS p
     ON s.product_id = p.product_id
 GROUP BY selling_month
-ORDER BY selling_month ASC
+ORDER BY selling_month ASC;
 
 --7
 /*
@@ -155,6 +155,6 @@ first_val_disc_table AS (
         seller
     FROM initial_table
     WHERE first_val_disc = 0
-)
+);
 
-SELECT * FROM first_val_disc_table
+SELECT * FROM first_val_disc_table;
