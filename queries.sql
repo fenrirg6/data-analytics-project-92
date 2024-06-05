@@ -67,18 +67,6 @@ UPD: сортировка была некорректна, т.к. приводи
 Изменено на to_char(s.sale_date, 'ID') - конвертация даты в дни недели в ISO-формате.
 */
 
-SELECT
-    CONCAT(e.first_name, ' ', e.last_name) AS seller,
-    TO_CHAR(s.sale_date, 'day') AS day_of_week,
-    FLOOR(SUM(p.price * s.quantity)) AS income
-FROM sales AS s
-LEFT JOIN employees AS e
-    ON s.sales_person_id = e.employee_id
-LEFT JOIN products AS p
-    ON s.product_id = p.product_id
-GROUP BY seller, day_of_week, TO_CHAR(s.sale_date, 'ID')
-ORDER BY TO_CHAR(s.sale_date, 'ID'), seller
-
 --5
 /*
 Через CASE прописываем условие для дифференциации покупателей по возрастным группам
